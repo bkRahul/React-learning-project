@@ -1,25 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import "./App.css";
+import Layout from "./components/Layout/Layout";
+import BurgerBuilder from "./containers/BurgerBuilder/BurgerBuilder";
+import Checkout from "./containers/Checkout/Checkout";
+import Orders from "./containers/Orders/Orders";
 
 function App() {
+  // const [showState, setshowState] = useState({show: true})
+
+  // useEffect(() => {
+  //   //console.log("[App.js] 1st useEffect");
+  // });
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setshowState({
+  //       show: false
+  //     });
+  //   }, 5000);
+  //   return () => {
+  //     clearTimeout(timer);
+  //     //console.log("[App.js] Cleanup work in useEffect");
+  //   };
+  // }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <Layout>
+          {/* {showState.show ? <BurgerBuilder/> : null} */}
+          <Switch>
+          <Route path="/checkout" component={Checkout} />
+            <Route path="/orders" component={Orders} />
+            <Route path="/" exact component={BurgerBuilder} />
+          </Switch>
+        </Layout>
+      </div>
+    </BrowserRouter>
   );
 }
 
