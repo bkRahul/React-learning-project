@@ -5,6 +5,7 @@ import Button from "../../../components/UI/Button/Button";
 import classes from "./Contact.module.css";
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import Input from "../../../components/UI/Input/Input";
+import { connect } from "react-redux";
 
 class Contact extends Component {
   state = {
@@ -130,8 +131,8 @@ class Contact extends Component {
     });
 
     const order = {
-      ingredients: this.props.ingredients,
-      price: this.props.price,
+      ingredients: this.props.ings,
+      price: this.props.tprice,
       orderData: formData
     };
 
@@ -223,4 +224,11 @@ class Contact extends Component {
   }
 }
 
-export default Contact;
+const mapStateToProps = state => {
+  return {
+    ings: state.ingredients,
+    tprice: state.totalPrice
+  };
+};
+
+export default connect(mapStateToProps, null)(Contact);
