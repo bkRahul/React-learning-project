@@ -5,11 +5,12 @@ import Button from "../../../components/UI/Button/Button";
 import classes from "./Contact.module.css";
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import Input from "../../../components/UI/Input/Input";
+import * as burgerOrderActions from "../../../store/actions/index";
 import { connect } from "react-redux";
+import withErrorHandler from "../../../hoc/withErrorHandler";
 
 class Contact extends Component {
   state = {
-    isLoading: false,
     formIsValid: false,
     orderForm: {
       name: {
@@ -25,61 +26,61 @@ class Contact extends Component {
         valid: false,
         touched: false
       },
-      email: {
-        elementType: "input",
-        elementConfig: {
-          type: "email",
-          placeholder: "Your Email"
-        },
-        value: "",
-        validation: {
-          required: true
-        },
-        valid: false,
-        touched: false
-      },
+      // email: {
+      //   elementType: "input",
+      //   elementConfig: {
+      //     type: "email",
+      //     placeholder: "Your Email"
+      //   },
+      //   value: "",
+      //   validation: {
+      //     required: true
+      //   },
+      //   valid: false,
+      //   touched: false
+      // },
 
-      doorNum: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Door No."
-        },
-        value: "",
-        validation: {
-          required: true
-        },
-        valid: false,
-        touched: false
-      },
-      street: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Street Address"
-        },
-        value: "",
-        validation: {
-          required: true
-        },
-        valid: false,
-        touched: false
-      },
-      postalCode: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Pin Code"
-        },
-        value: "",
-        validation: {
-          required: true,
-          minLength: 5,
-          maxLength: 5
-        },
-        valid: false,
-        touched: false
-      },
+      // doorNum: {
+      //   elementType: "input",
+      //   elementConfig: {
+      //     type: "text",
+      //     placeholder: "Door No."
+      //   },
+      //   value: "",
+      //   validation: {
+      //     required: true
+      //   },
+      //   valid: false,
+      //   touched: false
+      // },
+      // street: {
+      //   elementType: "input",
+      //   elementConfig: {
+      //     type: "text",
+      //     placeholder: "Street Address"
+      //   },
+      //   value: "",
+      //   validation: {
+      //     required: true
+      //   },
+      //   valid: false,
+      //   touched: false
+      // },
+      // postalCode: {
+      //   elementType: "input",
+      //   elementConfig: {
+      //     type: "text",
+      //     placeholder: "Pin Code"
+      //   },
+      //   value: "",
+      //   validation: {
+      //     required: true,
+      //     minLength: 5,
+      //     maxLength: 5
+      //   },
+      //   valid: false,
+      //   touched: false
+      // },
       payment: {
         elementType: "select",
         elementConfig: {
@@ -89,7 +90,7 @@ class Contact extends Component {
             { value: "upi", displayValue: "UPI" }
           ]
         },
-        value: "",
+        value: "cash",
         validation: {},
         valid: true
       }
@@ -126,31 +127,13 @@ class Contact extends Component {
       }
     }
     //    console.log(formData);
-    this.setState({
-      isLoading: true
-    });
 
     const order = {
       ingredients: this.props.ings,
       price: this.props.tprice,
       orderData: formData
     };
-
-    axios
-      .post("/orders.json", order)
-      .then(response => {
-        this.setState({
-          isLoading: false
-        });
-        this.props.history.push("/");
-        //       console.log(response);
-      })
-      .catch(error => {
-        this.setState({
-          isLoading: false
-        });
-        //      console.log(error);
-      });
+    this.props.onOrderBurger(order)
   };
 
   inputChangeHandler = (e, id) => {
@@ -212,7 +195,7 @@ class Contact extends Component {
       </form>
     );
 
-    if (this.state.isLoading) {
+    if (this.props.isLoading) {
       form = <Spinner />;
     }
     return (
@@ -226,9 +209,16 @@ class Contact extends Component {
 
 const mapStateToProps = state => {
   return {
-    ings: state.ingredients,
-    tprice: state.totalPrice
+    ings: state.burgerBuilder.ingredients,
+    tprice: state.burgerBuilder.totalPrice,
+    isLoading:state.order.loading
   };
 };
 
-export default connect(mapStateToProps, null)(Contact);
+const mapDispatchToProps = dispatch => {
+  return {
+    onOrderBurger: orderData => dispatch(burgerOrderActions.takeOrder(orderData))
+  }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(Contact, axios));

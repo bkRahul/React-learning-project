@@ -3,47 +3,48 @@ import axios from "../../axios-orders";
 
 import Order from "../../components/Order/Order";
 import withErrorHandler from "../../hoc/withErrorHandler";
+import * as fetchOrdersAction from "../../store/actions/index";
+import Spinner from "../../components/UI/Spinner/Spinner";
+import { connect } from "react-redux";
 
 class Orders extends Component {
-  state = {
-    orders: [],
-    isLoading: true
-  };
-
   componentDidMount() {
-    axios
-      .get("/orders.json")
-      .then(response => {
-        //console.log(response.data);
-        let fetchedOrders = [];
-        for (const key in response.data) {
-          if (response.data.hasOwnProperty(key)) {
-            fetchedOrders.push({...response.data[key], id: key });
-          }
-        }
-        this.setState({
-          isLoading: false,
-          orders: fetchedOrders
-        });
-        //console.log(fetchedOrders);
-      })
-      .catch(error => {
-        console.log(error);
-        this.setState({
-          isLoading: false,
-          error: true
-        });
-      });
+    this.props.onFetchOrders();
   }
   render() {
-    return (
-      <div>
-        {this.state.orders.map(order => {
-          return <Order key={order.id} ingredients={order.ingredients} price={order.price} />
-        })}
-      </div>
-    );
+    let orders = <Spinner />;
+
+    if (!this.props.isLoading) {
+      //console.log(this.props.orders)
+      orders = this.props.orders.map(order => {
+        return (
+          <Order
+            key={order.id}
+            ingredients={order.ingredients}
+            price={order.price}
+          />
+        );
+      });
+    }
+
+    return <div>{orders}</div>;
   }
 }
 
-export default withErrorHandler(Orders, axios);
+const mapStateToProps = state => {
+  return {
+    orders: state.order.orders,
+    isLoading: state.order.loading
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onFetchOrders: () => dispatch(fetchOrdersAction.fetchOrders())
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withErrorHandler(Orders, axios));

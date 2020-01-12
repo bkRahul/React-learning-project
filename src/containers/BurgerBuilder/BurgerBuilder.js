@@ -13,28 +13,12 @@ import * as burgerBuilderActions from "../../store/actions/index";
 
 class BurgerBuilder extends PureComponent {
   state = {
-    totalPrice: 0,
     purchasing: false,
-    isLoading: false,
-    error: false
   };
 
-  // componentDidMount() {
-  //   axios
-  //     .get("/ingredient.json")
-  //     .then(response => {
-  //       //    console.log(response);
-  //       this.setState({
-  //         ingredients: response.data
-  //       });
-  //     })
-  //     .catch(error => {
-  //       //    console.log(error)
-  //       this.setState({
-  //         error: true
-  //       });
-  //     });
-  // }
+  componentDidMount() {
+    this.props.onInitIngredients();
+  }
 
   updatePurchaseState = ingredients => {
     let sum = Object.keys(ingredients)
@@ -80,7 +64,7 @@ class BurgerBuilder extends PureComponent {
     let orderSum,
       burger = <Spinner />;
 
-    if (this.state.error) {
+    if (this.props.error) {
       burger = <p>Sorry Ingredients could not be loaded</p>;
     }
 
@@ -93,9 +77,9 @@ class BurgerBuilder extends PureComponent {
         />
       );
 
-      if (this.state.isLoading) {
-        orderSum = <Spinner />;
-      }
+      // if (this.state.isLoading) {
+      //   orderSum = <Spinner />;
+      // }
 
       burger = (
         <Aux>
@@ -128,8 +112,9 @@ class BurgerBuilder extends PureComponent {
 
 const mapStateToProps = state => {
   return {
-    ings: state.ingredients,
-    tprice: state.totalPrice
+    ings: state.burgerBuilder.ingredients,
+    tprice: state.burgerBuilder.totalPrice,
+    error: state.burgerBuilder.error
   };
 };
 
@@ -138,7 +123,8 @@ const mapDispatchToProps = dispatch => {
     onAddIngredient: ingName =>
       dispatch(burgerBuilderActions.addIngredient(ingName)),
     onDeleteIngredient: ingName =>
-      dispatch(burgerBuilderActions.removeIngredient(ingName))
+      dispatch(burgerBuilderActions.removeIngredient(ingName)),
+    onInitIngredients: () => dispatch(burgerBuilderActions.initIngredients())
   };
 };
 
