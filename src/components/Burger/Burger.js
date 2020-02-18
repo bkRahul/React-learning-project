@@ -3,7 +3,11 @@ import React from "react";
 import styles from "./Burger.module.css";
 import BurgerIngredient from "./BurgerIngredient/BurgerIngredient";
 
+
 const Burger = props => {
+  // console.log(props.ingredients)
+  //console.log(Object.keys(props.ingredients))
+
   //Object.keys converts the object keys to array
   let transformedIngredients = Object.keys(props.ingredients)
     .map(ingKey => {
@@ -20,10 +24,11 @@ const Burger = props => {
       //adds the array element previous value with current value::[[comp], [comp1], [comp2]]
       return acc.concat(curr);
     }, []);
+    //console.log(transformedIngredients)
   if (transformedIngredients.length === 0) {
     transformedIngredients = <p>Please start adding ingredients</p>;
   }
-  //console.log(transformedIngredients);
+
   return (
     <div className={styles.Burger}>
       <BurgerIngredient type="bread-top" />

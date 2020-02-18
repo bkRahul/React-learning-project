@@ -9,8 +9,15 @@ import { connect } from "react-redux";
 
 class Orders extends Component {
   componentDidMount() {
-    this.props.onFetchOrders();
+//    console.log("Orders is mounted")
+    this.props.onFetchOrders(this.props.idToken);
   }
+
+//   componentDidUpdate() {
+//    console.log("orders is updated")
+// //    this.props.onFetchOrders();
+//   }
+
   render() {
     let orders = <Spinner />;
 
@@ -34,13 +41,14 @@ class Orders extends Component {
 const mapStateToProps = state => {
   return {
     orders: state.order.orders,
-    isLoading: state.order.loading
+    isLoading: state.order.loading,
+    idToken: state.auth.idToken
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    onFetchOrders: () => dispatch(fetchOrdersAction.fetchOrders())
+    onFetchOrders: (idToken) => dispatch(fetchOrdersAction.fetchOrders(idToken))
   };
 };
 

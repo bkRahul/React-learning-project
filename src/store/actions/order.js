@@ -22,11 +22,11 @@ export const orderFailure = (error) => {
   };
 };
 
-export const takeOrder = orderData => {
+export const takeOrder = (orderData, idToken) => {
   return dispatch => {
     dispatch(orderProcess());
     axios
-      .post("/orders.json", orderData)
+      .post("/orders.json?auth="+ idToken, orderData)
       .then(response => {
         console.log(response.data)
         dispatch(orderSuccess(response.data.name, orderData));
@@ -58,13 +58,13 @@ export const fetchOrdersFailure = error => {
   }
 };
 
-export const fetchOrders = () => {
+export const fetchOrders = (idToken) => {
   return dispatch => {
     dispatch(orderProcess());
     axios
-      .get("/orders.json")
+      .get("/orders.json?auth="+ idToken)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         let fetchedOrders = [];
         for (const key in response.data) {
           if (response.data.hasOwnProperty(key)) {
@@ -72,7 +72,7 @@ export const fetchOrders = () => {
           }
         }
         dispatch(fetchOrdersSuccess(fetchedOrders));
-        console.log(fetchedOrders);
+        //console.log(fetchedOrders);
       })
       .catch(error => {
         dispatch(fetchOrdersFailure(error));

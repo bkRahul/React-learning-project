@@ -113,6 +113,11 @@ class Contact extends Component {
       isValid = value.length <= rules.maxLength && isValid;
     }
 
+    if (rules.isEmail) {
+      var pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      isValid = pattern.test(value) && isValid;
+    }
+
     return isValid;
   };
 
@@ -123,17 +128,18 @@ class Contact extends Component {
     for (const formElement in this.state.orderForm) {
       if (this.state.orderForm.hasOwnProperty(formElement)) {
         //create a new object with only name and value
+        //formData[name] = this.state.orderForm[name].value
         formData[formElement] = this.state.orderForm[formElement].value;
       }
     }
-    //    console.log(formData);
+    //  console.log(formData);
 
     const order = {
       ingredients: this.props.ings,
       price: this.props.tprice,
       orderData: formData
     };
-    this.props.onOrderBurger(order)
+    this.props.onOrderBurger(order, this.props.idToken)
   };
 
   inputChangeHandler = (e, id) => {
@@ -166,11 +172,11 @@ class Contact extends Component {
     const formElementsArray = [];
     for (const key in this.state.orderForm) {
       if (this.state.orderForm.hasOwnProperty(key)) {
-        //get the name and elementconfig part of object
+        //get the name and element config part of object
         formElementsArray.push({ id: key, config: this.state.orderForm[key] });
       }
     }
-    //console.log(formElementsArray);
+    console.log(formElementsArray);
     let form = (
       <form onSubmit={this.orderHandler}>
         {formElementsArray.map(formElement => {
@@ -211,13 +217,14 @@ const mapStateToProps = state => {
   return {
     ings: state.burgerBuilder.ingredients,
     tprice: state.burgerBuilder.totalPrice,
-    isLoading:state.order.loading
+    isLoading:state.order.loading,
+    idToken: state.auth.idToken
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    onOrderBurger: orderData => dispatch(burgerOrderActions.takeOrder(orderData))
+    onOrderBurger: (orderData, idToken) => dispatch(burgerOrderActions.takeOrder(orderData, idToken))
   }
 };
 
