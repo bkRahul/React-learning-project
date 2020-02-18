@@ -3,7 +3,7 @@ import React from "react";
 import classes from "./Order.module.css";
 
 const Order = props => {
-  console.log(props.ingredients);
+  //console.log(props.ingredients);
   const ingredients = [];
   for (const ingredientName in props.ingredients) {
     if (props.ingredients.hasOwnProperty(ingredientName)) {
