@@ -5,10 +5,12 @@ import Button from "../../../components/UI/Button/Button";
 import classes from "./Contact.module.css";
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import Input from "../../../components/UI/Input/Input";
+import * as burgerOrderActions from "../../../store/actions/index";
+import { connect } from "react-redux";
+import withErrorHandler from "../../../hoc/withErrorHandler";
 
 class Contact extends Component {
   state = {
-    isLoading: false,
     formIsValid: false,
     orderForm: {
       name: {
@@ -24,61 +26,61 @@ class Contact extends Component {
         valid: false,
         touched: false
       },
-      email: {
-        elementType: "input",
-        elementConfig: {
-          type: "email",
-          placeholder: "Your Email"
-        },
-        value: "",
-        validation: {
-          required: true
-        },
-        valid: false,
-        touched: false
-      },
+      // email: {
+      //   elementType: "input",
+      //   elementConfig: {
+      //     type: "email",
+      //     placeholder: "Your Email"
+      //   },
+      //   value: "",
+      //   validation: {
+      //     required: true
+      //   },
+      //   valid: false,
+      //   touched: false
+      // },
 
-      doorNum: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Door No."
-        },
-        value: "",
-        validation: {
-          required: true
-        },
-        valid: false,
-        touched: false
-      },
-      street: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Street Address"
-        },
-        value: "",
-        validation: {
-          required: true
-        },
-        valid: false,
-        touched: false
-      },
-      postalCode: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Pin Code"
-        },
-        value: "",
-        validation: {
-          required: true,
-          minLength: 5,
-          maxLength: 5
-        },
-        valid: false,
-        touched: false
-      },
+      // doorNum: {
+      //   elementType: "input",
+      //   elementConfig: {
+      //     type: "text",
+      //     placeholder: "Door No."
+      //   },
+      //   value: "",
+      //   validation: {
+      //     required: true
+      //   },
+      //   valid: false,
+      //   touched: false
+      // },
+      // street: {
+      //   elementType: "input",
+      //   elementConfig: {
+      //     type: "text",
+      //     placeholder: "Street Address"
+      //   },
+      //   value: "",
+      //   validation: {
+      //     required: true
+      //   },
+      //   valid: false,
+      //   touched: false
+      // },
+      // postalCode: {
+      //   elementType: "input",
+      //   elementConfig: {
+      //     type: "text",
+      //     placeholder: "Pin Code"
+      //   },
+      //   value: "",
+      //   validation: {
+      //     required: true,
+      //     minLength: 5,
+      //     maxLength: 5
+      //   },
+      //   valid: false,
+      //   touched: false
+      // },
       payment: {
         elementType: "select",
         elementConfig: {
@@ -88,7 +90,7 @@ class Contact extends Component {
             { value: "upi", displayValue: "UPI" }
           ]
         },
-        value: "",
+        value: "cash",
         validation: {},
         valid: true
       }
@@ -111,6 +113,11 @@ class Contact extends Component {
       isValid = value.length <= rules.maxLength && isValid;
     }
 
+    if (rules.isEmail) {
+      var pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      isValid = pattern.test(value) && isValid;
+    }
+
     return isValid;
   };
 
@@ -121,35 +128,18 @@ class Contact extends Component {
     for (const formElement in this.state.orderForm) {
       if (this.state.orderForm.hasOwnProperty(formElement)) {
         //create a new object with only name and value
+        //formData[name] = this.state.orderForm[name].value
         formData[formElement] = this.state.orderForm[formElement].value;
       }
     }
-    //    console.log(formData);
-    this.setState({
-      isLoading: true
-    });
+    //  console.log(formData);
 
     const order = {
-      ingredients: this.props.ingredients,
-      price: this.props.price,
+      ingredients: this.props.ings,
+      price: this.props.tprice,
       orderData: formData
     };
-
-    axios
-      .post("/orders.json", order)
-      .then(response => {
-        this.setState({
-          isLoading: false
-        });
-        this.props.history.push("/");
-        //       console.log(response);
-      })
-      .catch(error => {
-        this.setState({
-          isLoading: false
-        });
-        //      console.log(error);
-      });
+    this.props.onOrderBurger(order, this.props.idToken)
   };
 
   inputChangeHandler = (e, id) => {
@@ -182,11 +172,11 @@ class Contact extends Component {
     const formElementsArray = [];
     for (const key in this.state.orderForm) {
       if (this.state.orderForm.hasOwnProperty(key)) {
-        //get the name and elementconfig part of object
+        //get the name and element config part of object
         formElementsArray.push({ id: key, config: this.state.orderForm[key] });
       }
     }
-    //console.log(formElementsArray);
+    console.log(formElementsArray);
     let form = (
       <form onSubmit={this.orderHandler}>
         {formElementsArray.map(formElement => {
@@ -211,7 +201,7 @@ class Contact extends Component {
       </form>
     );
 
-    if (this.state.isLoading) {
+    if (this.props.isLoading) {
       form = <Spinner />;
     }
     return (
@@ -223,4 +213,19 @@ class Contact extends Component {
   }
 }
 
-export default Contact;
+const mapStateToProps = state => {
+  return {
+    ings: state.burgerBuilder.ingredients,
+    tprice: state.burgerBuilder.totalPrice,
+    isLoading:state.order.loading,
+    idToken: state.auth.idToken
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onOrderBurger: (orderData, idToken) => dispatch(burgerOrderActions.takeOrder(orderData, idToken))
+  }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(Contact, axios));
