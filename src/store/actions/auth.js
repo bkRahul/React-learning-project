@@ -8,6 +8,7 @@ export const authStart = () => {
 };
 
 export const authSuccess = (token, userId) => {
+  //send token, userId as payload to reducer
   return {
     type: actionTypes.AUTH_SUCCESS,
     idToken: token,
@@ -23,6 +24,7 @@ export const authFailure = (error) => {
 };
 
 export const auth = (email, password, isSignUp) => {
+  //to dispatch async action return  function with dispatch as argument (redux thunk)
   return (dispatch) => {
     dispatch(authStart());
     const authData = {
@@ -40,6 +42,7 @@ export const auth = (email, password, isSignUp) => {
       .post(url, authData)
       .then((response) => {
         console.log(response);
+        //set token, userId as payload to reducer
         dispatch(authSuccess(response.data.idToken, response.data.localId));
         dispatch(checkAuthTimeOut(response.data.expiresIn));
       })
@@ -61,5 +64,13 @@ export const checkAuthTimeOut = (expirationTime) => {
 export const authLogout = () => {
   return {
     type: actionTypes.AUTH_LOGOUT,
+  };
+};
+
+export const setAuthRedirectPath = (path) => {
+  //send path as payload to reducer
+  return {
+    type: actionTypes.SET_AUTH_REDIRECT_PATH,
+    path: path,
   };
 };

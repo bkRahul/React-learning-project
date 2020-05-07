@@ -20,9 +20,9 @@ class BurgerBuilder extends PureComponent {
     this.props.onInitIngredients();
   }
 
-  updatePurchaseState = ingredients => {
+  updatePurchaseState = (ingredients) => {
     let sum = Object.keys(ingredients)
-      .map(igKey => {
+      .map((igKey) => {
         return ingredients[igKey];
       })
       .reduce((acc, curr) => {
@@ -35,30 +35,32 @@ class BurgerBuilder extends PureComponent {
   purchaseHandler = () => {
     if (this.props.isAuth) {
       this.setState({
-        purchasing: true
-      });        
-    }else {
+        purchasing: true,
+      });
+    } else {
+      this.props.onSetAuthRedirect("/checkout");
+      //redirect the user to authenticate if not logged in
       this.props.history.push({
-        pathname: "/auth"
-      });  
+        pathname: "/auth",
+      });
     }
   };
 
   purchaseCancelHandler = () => {
     this.setState({
-      purchasing: false
+      purchasing: false,
     });
   };
 
   purchaseContinueHandler = () => {
     this.props.history.push({
-      pathname: "/checkout"
+      pathname: "/checkout",
     });
   };
 
   render() {
     const disabledInfo = {
-      ...this.props.ings
+      ...this.props.ings,
     };
     //returns true or false if key is 0
     for (const key in disabledInfo) {
@@ -97,7 +99,7 @@ class BurgerBuilder extends PureComponent {
             totalPrice={this.props.tprice}
             purchasable={this.updatePurchaseState(this.props.ings)}
             purchasing={this.purchaseHandler}
-            isAuth = {this.props.isAuth}
+            isAuth={this.props.isAuth}
           />
         </Aux>
       );
@@ -117,22 +119,25 @@ class BurgerBuilder extends PureComponent {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     ings: state.burgerBuilder.ingredients,
     tprice: state.burgerBuilder.totalPrice,
     error: state.burgerBuilder.error,
-    isAuth: state.auth.idToken
+    isAuth: state.auth.idToken,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onAddIngredient: ingName =>
+    onAddIngredient: (ingName) =>
       dispatch(burgerBuilderActions.addIngredient(ingName)),
-    onDeleteIngredient: ingName =>
+    onDeleteIngredient: (ingName) =>
       dispatch(burgerBuilderActions.removeIngredient(ingName)),
-    onInitIngredients: () => dispatch(burgerBuilderActions.initIngredients())
+    onInitIngredients: () => 
+      dispatch(burgerBuilderActions.initIngredients()),
+      onSetAuthRedirect: (path) => 
+      dispatch(burgerBuilderActions.setAuthRedirectPath(path)),      
   };
 };
 
