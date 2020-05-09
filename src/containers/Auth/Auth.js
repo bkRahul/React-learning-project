@@ -1,11 +1,13 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import { Redirect } from "react-router";
+
 import Input from "../../components/UI/Input/Input";
 import Button from "../../components/UI/Button/Button";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import classes from "./Auth.module.css";
-import * as authActions from "../../store/actions/auth";
-import { connect } from "react-redux";
-import { Redirect } from "react-router";
+import * as authActions from "../../store/actions/index";
+
 //import withErrorHandler from "../../hoc/withErrorHandler";
 //import axios from "axios";
 
@@ -16,39 +18,39 @@ class Auth extends Component {
         elementType: "input",
         elementConfig: {
           type: "email",
-          placeholder: "Your Email"
+          placeholder: "Your Email",
         },
         value: "",
         validation: {
           required: true,
-          isEmail: true
+          isEmail: true,
         },
         valid: false,
-        touched: false
+        touched: false,
       },
       password: {
         elementType: "input",
         elementConfig: {
           type: "password",
-          placeholder: "Your Password"
+          placeholder: "Your Password",
         },
         value: "",
         validation: {
           required: true,
-          minLength: 6
+          minLength: 6,
         },
         valid: false,
-        touched: false
-      }
+        touched: false,
+      },
     },
-    isSignUp: true
+    isSignUp: true,
   };
 
-componentDidMount() {
-  if (!this.props.buildingBurger && this.props.authRedirectPath !== "/") {
-    this.props.onSetAuthRedirectPath("/");
+  componentDidMount() {
+    if (!this.props.buildingBurger && this.props.authRedirectPath !== "/") {
+      this.props.onSetAuthRedirectPath("/");
+    }
   }
-}
 
   checkValidity = (value, rules) => {
     //console.log(value, rules);
@@ -72,9 +74,9 @@ componentDidMount() {
 
   inputChangeHandler = (e, id) => {
     const updatedAuth = {
-      //  copies this.state.auth as a new object 
+      //  copies this.state.auth as a new object
       ...this.state.auth,
-      //  update the single control [email]  
+      //  update the single control [email]
       [id]: {
         //  copies this.state.auth[email]
         ...this.state.auth[id],
@@ -84,16 +86,16 @@ componentDidMount() {
           e.target.value,
           this.state.auth[id].validation
         ),
-        touched: true
-      }
+        touched: true,
+      },
     };
     //  updates auth state with updated updatedAuth
     this.setState({
-      auth: updatedAuth
+      auth: updatedAuth,
     });
   };
 
-  authHandler = event => {
+  authHandler = (event) => {
     event.preventDefault();
     this.props.onAuth(
       this.state.auth.email.value,
@@ -103,13 +105,11 @@ componentDidMount() {
   };
 
   toggleLAuthHandler = () => {
-    
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return {
-        isSignUp: !prevState.isSignUp
+        isSignUp: !prevState.isSignUp,
       };
     });
-
   };
 
   render() {
@@ -120,11 +120,11 @@ componentDidMount() {
         formElementsArray.push({ id: key, config: this.state.auth[key] });
       }
     }
-    console.log(formElementsArray);
+    //console.log(formElementsArray);
     //  {id: "email", config: {this.state.auth["email"]}
     let form = (
       <form onSubmit={this.authHandler}>
-        {formElementsArray.map(formElement => {
+        {formElementsArray.map((formElement) => {
           return (
             <Input
               key={formElement.id}
@@ -134,7 +134,7 @@ componentDidMount() {
               invalid={!formElement.config.valid}
               touched={formElement.config.touched}
               shouldValidate={formElement.config.validation}
-              changed={e => {
+              changed={(e) => {
                 this.inputChangeHandler(e, formElement.id);
               }}
             />
@@ -159,7 +159,7 @@ componentDidMount() {
     let errorMsg = null;
 
     if (this.props.error) {
-      errorMsg = <p>{this.props.error}</p>
+      errorMsg = <p>{this.props.error}</p>;
     }
     return (
       <div className={classes.Auth}>
@@ -172,23 +172,23 @@ componentDidMount() {
   }
 }
 
-const mapStateToProps = state => {
-    return {
-        isLoading: state.auth.loading,
-        error: state.auth.error,
-        isAuth: state.auth.idToken,
-        buildingBurger: state.burgerBuilder.buildingBurger,
-        authRedirectPath: state.auth.authRedirectPath
-    }
+const mapStateToProps = (state) => {
+  return {
+    isLoading: state.auth.loading,
+    error: state.auth.error,
+    isAuth: state.auth.idToken,
+    buildingBurger: state.burgerBuilder.buildingBurger,
+    authRedirectPath: state.auth.authRedirectPath,
+  };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     //  on submit action
     onAuth: (email, password, isSignUp) =>
       dispatch(authActions.auth(email, password, isSignUp)),
-      onSetAuthRedirectPath: (path) => 
-      dispatch(authActions.setAuthRedirectPath(path))
+    onSetAuthRedirectPath: (path) =>
+      dispatch(authActions.setAuthRedirectPath(path)),
   };
 };
 
