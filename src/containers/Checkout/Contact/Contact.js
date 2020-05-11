@@ -8,6 +8,7 @@ import Input from "../../../components/UI/Input/Input";
 import * as burgerOrderActions from "../../../store/actions/index";
 import { connect } from "react-redux";
 import withErrorHandler from "../../../hoc/withErrorHandler";
+import { checkValidity, updateObject } from "../../../utility/utility";
 
 class Contact extends Component {
   state = {
@@ -17,14 +18,14 @@ class Contact extends Component {
         elementType: "input",
         elementConfig: {
           type: "text",
-          placeholder: "Your Name"
+          placeholder: "Your Name",
         },
         value: "",
         validation: {
-          required: true
+          required: true,
         },
         valid: false,
-        touched: false
+        touched: false,
       },
       // email: {
       //   elementType: "input",
@@ -87,41 +88,17 @@ class Contact extends Component {
           options: [
             { value: "cash", displayValue: "Cash" },
             { value: "card", displayValue: "Card" },
-            { value: "upi", displayValue: "UPI" }
-          ]
+            { value: "upi", displayValue: "UPI" },
+          ],
         },
         value: "cash",
         validation: {},
-        valid: true
-      }
-    }
+        valid: true,
+      },
+    },
   };
 
-  checkValidity = (value, rules) => {
-    //console.log(value, rules);
-    let isValid = true;
-
-    if (rules.required) {
-      isValid = value.trim() !== "" && isValid;
-    }
-
-    if (rules.minLength) {
-      isValid = value.length >= rules.minLength && isValid;
-    }
-
-    if (rules.maxLength) {
-      isValid = value.length <= rules.maxLength && isValid;
-    }
-
-    if (rules.isEmail) {
-      var pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      isValid = pattern.test(value) && isValid;
-    }
-
-    return isValid;
-  };
-
-  orderHandler = e => {
+  orderHandler = (e) => {
     e.preventDefault();
     //console.log(this.props.ingredients);
     const formData = {};
@@ -137,23 +114,37 @@ class Contact extends Component {
     const order = {
       ingredients: this.props.ings,
       price: this.props.tprice,
-      orderData: formData
+      orderData: formData,
+      userId: this.props.userId,
     };
-    this.props.onOrderBurger(order, this.props.idToken)
+    this.props.onOrderBurger(order, this.props.idToken);
   };
 
   inputChangeHandler = (e, id) => {
     //    console.log(e.target.value);
-    const updatedOrderForm = { ...this.state.orderForm };
-    const updatedFormElement = { ...updatedOrderForm[id] };
+    //refactored code
+    const updatedFormElement = updateObject(this.state.orderForm[id], {
+      touched: true,
+      value: e.target.value,
+      valid: checkValidity(e.target.value, this.state.orderForm[id].validation),
+    });
 
-    updatedFormElement.touched = true;
-    updatedFormElement.value = e.target.value;
-    updatedFormElement.valid = this.checkValidity(
-      updatedFormElement.value,
-      updatedFormElement.validation
-    );
-    updatedOrderForm[id] = updatedFormElement;
+    const updatedOrderForm = updateObject(this.state.orderForm, {
+      [id]: updatedFormElement
+    });
+
+    // original code
+    // const updatedOrderForm = { ...this.state.orderForm };
+    // const updatedFormElement = { ...updatedOrderForm[id] };
+
+    // updatedFormElement.touched = true;
+    // updatedFormElement.value = e.target.value;
+    // updatedFormElement.valid = this.checkValidity(
+    //   updatedFormElement.value,
+    //   updatedFormElement.validation
+    // );
+    // updatedOrderForm[id] = updatedFormElement;
+
     //console.log(updatedFormElement);
     let formValid = true;
     for (const id in updatedOrderForm) {
@@ -164,7 +155,7 @@ class Contact extends Component {
     //console.log(formValid)
     this.setState({
       orderForm: updatedOrderForm,
-      formIsValid: formValid
+      formIsValid: formValid,
     });
   };
 
@@ -179,7 +170,7 @@ class Contact extends Component {
     //console.log(formElementsArray);
     let form = (
       <form onSubmit={this.orderHandler}>
-        {formElementsArray.map(formElement => {
+        {formElementsArray.map((formElement) => {
           return (
             <Input
               key={formElement.id}
@@ -189,7 +180,7 @@ class Contact extends Component {
               invalid={!formElement.config.valid}
               touched={formElement.config.touched}
               shouldValidate={formElement.config.validation}
-              changed={e => {
+              changed={(e) => {
                 this.inputChangeHandler(e, formElement.id);
               }}
             />
@@ -213,19 +204,24 @@ class Contact extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     ings: state.burgerBuilder.ingredients,
     tprice: state.burgerBuilder.totalPrice,
-    isLoading:state.order.loading,
-    idToken: state.auth.idToken
+    isLoading: state.order.loading,
+    idToken: state.auth.idToken,
+    userId: state.auth.userId,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onOrderBurger: (orderData, idToken) => dispatch(burgerOrderActions.takeOrder(orderData, idToken))
-  }
+    onOrderBurger: (orderData, idToken) =>
+      dispatch(burgerOrderActions.takeOrder(orderData, idToken)),
+  };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(Contact, axios));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withErrorHandler(Contact, axios));

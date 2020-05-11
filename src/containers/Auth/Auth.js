@@ -7,6 +7,7 @@ import Button from "../../components/UI/Button/Button";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import classes from "./Auth.module.css";
 import * as authActions from "../../store/actions/index";
+import { checkValidity } from "../../utility/utility";
 
 //import withErrorHandler from "../../hoc/withErrorHandler";
 //import axios from "axios";
@@ -52,26 +53,6 @@ class Auth extends Component {
     }
   }
 
-  checkValidity = (value, rules) => {
-    //console.log(value, rules);
-    let isValid = true;
-
-    if (rules.required) {
-      isValid = value.trim() !== "" && isValid;
-    }
-
-    if (rules.minLength) {
-      isValid = value.length >= rules.minLength && isValid;
-    }
-
-    if (rules.isEmail) {
-      var pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      isValid = pattern.test(value) && isValid;
-    }
-
-    return isValid;
-  };
-
   inputChangeHandler = (e, id) => {
     const updatedAuth = {
       //  copies this.state.auth as a new object
@@ -82,7 +63,7 @@ class Auth extends Component {
         ...this.state.auth[id],
         //  updates the properties
         value: e.target.value,
-        valid: this.checkValidity(
+        valid: checkValidity(
           e.target.value,
           this.state.auth[id].validation
         ),
