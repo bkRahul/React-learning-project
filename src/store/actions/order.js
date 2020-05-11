@@ -28,7 +28,7 @@ export const takeOrder = (orderData, idToken) => {
     axios
       .post("/orders.json?auth="+ idToken, orderData)
       .then(response => {
-        console.log(response.data)
+        //console.log(response.data)
         dispatch(orderSuccess(response.data.name, orderData));
       })
       .catch(error => {
@@ -58,11 +58,11 @@ export const fetchOrdersFailure = error => {
   }
 };
 
-export const fetchOrders = (idToken) => {
+export const fetchOrders = (idToken, userId) => {
   return dispatch => {
     dispatch(orderProcess());
     axios
-      .get("/orders.json?auth="+ idToken)
+      .get(`/orders.json?auth=${idToken}&orderBy="userId"&equalTo="${userId}"`)    
       .then(response => {
         //console.log(response.data);
         let fetchedOrders = [];
