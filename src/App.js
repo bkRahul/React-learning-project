@@ -22,22 +22,16 @@ class App extends React.Component {
         <div className="App">
           <Layout>
             <Switch>
-              {this.props.isAuth ? (
-                <>
+
                   <Route path="/checkout" component={Checkout} />
                   <Route path="/orders" component={Orders} />
-                  <Route path="/auth" component={Auth} />
+
                   <Route path="/logout" component={LogOut} />
-                  <Route path="/" exact component={BurgerBuilder} />
-                  <Redirect to="/" />
-                </>
-              ) : (
-                <>
+
                   <Route path="/auth" component={Auth} />
                   <Route path="/" exact component={BurgerBuilder} />
                   <Redirect to="/" />
-                </>
-              )}
+
             </Switch>
           </Layout>
         </div>
