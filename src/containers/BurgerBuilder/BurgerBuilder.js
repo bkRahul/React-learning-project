@@ -11,7 +11,7 @@ import axios from "../../axios-orders";
 import { connect } from "react-redux";
 import * as burgerBuilderActions from "../../store/actions/index";
 
-class BurgerBuilder extends PureComponent {
+export class BurgerBuilder extends PureComponent {
   state = {
     purchasing: false,
   };
