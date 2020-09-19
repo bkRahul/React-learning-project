@@ -1,35 +1,26 @@
-import React, { Component } from "react";
+import React from 'react';
 
-import classes from "./Modal.module.css";
-import Aux from "../../../hoc/Auxillary";
-import Backdrop from "../Backdrop/Backdrop";
+import classes from './Modal.module.css';
+import Aux from '../../../hoc/Auxillary';
+import Backdrop from '../Backdrop/Backdrop';
 
-class Modal extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    return (
-      nextProps.show !== this.props.show ||
-      nextProps.children !== this.props.childen
-    );
-  }
-
-  render() {
-    return (
-      <Aux>
-        <Backdrop show={this.props.show} modalClosed={this.props.clicked} />
-        <div
-          className={classes.Modal}
-          style={
-            this.props.show
-              ? { transform: "translateY(0)", opacity: "1" }
-              : { transform: "translateY(-100vh)", opacity: "0" }
-          }
-        >
-          {this.props.children}
-        </div>
-      </Aux>
-    );
-  }
-}
+const Modal = props => {
+  return (
+    <Aux>
+      <Backdrop show={props.show} modalClosed={props.clicked} />
+      <div
+        className={classes.Modal}
+        style={
+          props.show
+            ? { transform: 'translateY(0)', opacity: '1' }
+            : { transform: 'translateY(-100vh)', opacity: '0' }
+        }
+      >
+        {props.children}
+      </div>
+    </Aux>
+  );
+};
 
 // const Modal = props => {
 //   useEffect(() => {
@@ -60,4 +51,9 @@ class Modal extends Component {
 //   );
 // };
 
-export default Modal;
+export default React.memo(
+  Modal,
+  (prevProps, nextProps) =>
+    nextProps.show === prevProps.show &&
+    nextProps.children === prevProps.childen
+);
